@@ -3,8 +3,6 @@ package session
 import (
 	"github.com/goal-web/contracts"
 	"github.com/goal-web/supports/utils"
-	"net/http"
-	"strings"
 	"time"
 )
 
@@ -15,20 +13,23 @@ type Session struct {
 	started    bool
 	path       string
 	domain     string
-	lifetime   string
+	lifetime   time.Duration
 	attributes map[string]string
 	request    contracts.HttpRequest
+
+	store contracts.SessionStore
 }
 
-func New(name, id string, config contracts.Config, request contracts.HttpRequest) contracts.Session {
+func New(config Config, request contracts.HttpRequest, store contracts.SessionStore) contracts.Session {
 	return &Session{
-		id:         id,
-		name:       name,
+		id:         "",
+		name:       config.Name,
 		started:    false,
 		request:    request,
 		path:       request.Path(),
-		domain:     config.GetString("session.domain"),
-		lifetime:   config.GetString("session.lifetime"),
+		store:      store,
+		domain:     config.Domain,
+		lifetime:   config.Lifetime,
 		attributes: map[string]string{},
 	}
 }
@@ -59,25 +60,11 @@ func (this *Session) Start() bool {
 }
 
 func (this *Session) loadSession() {
-	for _, cookie := range this.request.Cookies() {
-		if index := strings.Index(cookie.Name, this.name); index == 0 {
-			this.attributes[strings.ReplaceAll(cookie.Name, this.name, "")] = cookie.Value
-		}
-	}
-}
-
-func (this *Session) CookieKey(key string) string {
-	return this.name + key
+	this.attributes = this.store.LoadSession(this.GetId())
 }
 
 func (this *Session) Save() {
-	for key, value := range this.attributes {
-		this.request.SetCookie(&http.Cookie{
-			Name:    this.CookieKey(key),
-			Value:   value,
-			Expires: time.Now().Add(time.Hour * 24),
-		})
-	}
+	this.store.Save(this.GetId(), this.attributes)
 }
 
 func (this *Session) All() map[string]string {
