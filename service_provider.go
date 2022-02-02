@@ -6,13 +6,19 @@ import (
 )
 
 type ServiceProvider struct {
-	app contracts.Application
+	app    contracts.Application
+	config Config
 }
 
 func (this *ServiceProvider) Register(application contracts.Application) {
 	this.app = application
 
-	application.Bind("session", func(config contracts.Config, request contracts.HttpRequest, encryptor contracts.Encryptor) contracts.Session {
+	application.Bind("session", func(
+		config contracts.Config,
+		request contracts.HttpRequest,
+		encryptor contracts.Encryptor,
+		redis contracts.RedisFactory,
+	) contracts.Session {
 		if session, isSession := request.Get("session").(contracts.Session); isSession {
 			return session
 		}
@@ -27,6 +33,9 @@ func (this *ServiceProvider) Register(application contracts.Application) {
 			} else {
 				store = stores.CookieStore(sessionConfig.Name, sessionConfig.Lifetime, request, nil)
 			}
+
+		case "redis":
+			store = stores.RedisStore(sessionConfig.Key, sessionConfig.Lifetime, redis.Connection(sessionConfig.Connection))
 		}
 
 		session := New(sessionConfig, request, store)

@@ -2,7 +2,9 @@ package session
 
 import (
 	"github.com/goal-web/contracts"
+	"github.com/goal-web/supports/logs"
 	"github.com/goal-web/supports/utils"
+	"net/http"
 	"time"
 )
 
@@ -16,6 +18,7 @@ type Session struct {
 	lifetime   time.Duration
 	attributes map[string]string
 	request    contracts.HttpRequest
+	changed    bool
 
 	store contracts.SessionStore
 }
@@ -51,10 +54,17 @@ func (this *Session) SetId(id string) {
 }
 
 func (this *Session) Start() bool {
-	this.loadSession()
-	if !this.Has("_token") {
-		this.RegenerateToken()
+	cookie, err := this.request.Cookie(this.name)
+	if err != nil {
+		logs.WithError(err).Debug("Failed to load cookies")
+	} else {
+		this.id = cookie.Value
 	}
+
+	if this.id == "" {
+		this.generateSessionId()
+	}
+	this.loadSession()
 	this.started = true
 	return true
 }
@@ -90,6 +100,7 @@ func (this *Session) Get(key, defaultValue string) string {
 }
 
 func (this *Session) Pull(key, defaultValue string) string {
+	this.changed = true
 	value, exists := this.attributes[key]
 	if !exists || value == "" {
 		return defaultValue
@@ -99,6 +110,7 @@ func (this *Session) Pull(key, defaultValue string) string {
 }
 
 func (this *Session) Put(key, value string) {
+	this.changed = true
 	this.attributes[key] = value
 }
 
@@ -107,7 +119,12 @@ func (this *Session) Token() string {
 }
 
 func (this *Session) RegenerateToken() {
-	this.Put("_token", utils.RandStr(40))
+	this.id = utils.RandStr(40)
+	this.request.SetCookie(&http.Cookie{
+		Name:    this.name,
+		Value:   this.id,
+		Expires: time.Now().Add(time.Second * this.lifetime),
+	})
 }
 
 func (this *Session) Remove(key string) string {
@@ -115,12 +132,14 @@ func (this *Session) Remove(key string) string {
 }
 
 func (this *Session) Forget(keys ...string) {
+	this.changed = true
 	for _, key := range keys {
 		delete(this.attributes, key)
 	}
 }
 
 func (this *Session) Flush() {
+	this.changed = true
 	this.attributes = make(map[string]string)
 }
 
@@ -140,7 +159,7 @@ func (this *Session) Migrate(destroy bool) bool {
 	if destroy {
 		// todo: $this->handler->destroy($this->getId());
 	}
-	this.SetId(this.generateSessionId())
+	this.generateSessionId()
 	return true
 }
 
@@ -148,8 +167,13 @@ func (this *Session) IsStarted() bool {
 	return this.started
 }
 
-func (this *Session) generateSessionId() string {
-	return utils.RandStr(40)
+func (this *Session) generateSessionId() {
+	this.id = utils.RandStr(40)
+	this.request.SetCookie(&http.Cookie{
+		Name:    this.name,
+		Value:   this.id,
+		Expires: time.Now().Add(time.Second * this.lifetime),
+	})
 }
 
 func (this *Session) PreviousUrl() string {

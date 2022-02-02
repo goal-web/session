@@ -16,4 +16,6 @@ type Config struct {
 	Table string
 
 	Name string
+
+	Key string
 }
