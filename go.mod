@@ -3,8 +3,8 @@ module github.com/goal-web/session
 go 1.17
 
 require (
-	github.com/goal-web/contracts v0.1.26
-	github.com/goal-web/http v0.1.0
+	github.com/goal-web/contracts v0.1.27
+	github.com/goal-web/http v0.1.2
 	github.com/goal-web/pipeline v0.1.5
 	github.com/goal-web/supports v0.1.12
 )

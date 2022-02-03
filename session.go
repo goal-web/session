@@ -74,7 +74,9 @@ func (this *Session) loadSession() {
 }
 
 func (this *Session) Save() {
-	this.store.Save(this.GetId(), this.attributes)
+	if this.changed {
+		this.store.Save(this.GetId(), this.attributes)
+	}
 }
 
 func (this *Session) All() map[string]string {
