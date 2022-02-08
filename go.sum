@@ -16,8 +16,9 @@ github.com/goal-web/container v0.1.4/go.mod h1:xbOKGHxV8Pg4IPTVDEEVQ21YZ2Fr2u7sj
 github.com/goal-web/contracts v0.1.19/go.mod h1:lKHynU2Kgk6xyxL4afOJM4TO1kSa3RrCJ2bm5RtFMBw=
 github.com/goal-web/contracts v0.1.21/go.mod h1:lKHynU2Kgk6xyxL4afOJM4TO1kSa3RrCJ2bm5RtFMBw=
 github.com/goal-web/contracts v0.1.23/go.mod h1:lKHynU2Kgk6xyxL4afOJM4TO1kSa3RrCJ2bm5RtFMBw=
-github.com/goal-web/contracts v0.1.27 h1:DzdJR/cRb3yIVTVfqU9Ejf66WHt+NEIAGV0BGckQeik=
 github.com/goal-web/contracts v0.1.27/go.mod h1:lKHynU2Kgk6xyxL4afOJM4TO1kSa3RrCJ2bm5RtFMBw=
+github.com/goal-web/contracts v0.1.36 h1:D5/AK9H2wHHA6fwLWTkLjoxflBdrLBO4N8kwv2Ikesg=
+github.com/goal-web/contracts v0.1.36/go.mod h1:lKHynU2Kgk6xyxL4afOJM4TO1kSa3RrCJ2bm5RtFMBw=
 github.com/goal-web/http v0.1.2 h1:tjW4Qk7HzCc3PxUXWId64+04WCFp21vez3L0Rm5x9GQ=
 github.com/goal-web/http v0.1.2/go.mod h1:h7wTlBkmJca59BBCY9hZqu8sBOqRJ4Gle6KRM13t9uY=
 github.com/goal-web/pipeline v0.1.5 h1:lmVjU2HHWglvp6wtpU2J6M+2YDiCJJsPu07YFZYmDO4=

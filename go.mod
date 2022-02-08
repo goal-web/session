@@ -3,15 +3,15 @@ module github.com/goal-web/session
 go 1.17
 
 require (
-	github.com/goal-web/contracts v0.1.27
+	github.com/goal-web/contracts v0.1.36
 	github.com/goal-web/http v0.1.2
-	github.com/goal-web/pipeline v0.1.5
 	github.com/goal-web/supports v0.1.12
 )
 
 require (
 	github.com/apex/log v1.9.0 // indirect
 	github.com/goal-web/container v0.1.4 // indirect
+	github.com/goal-web/pipeline v0.1.5 // indirect
 	github.com/labstack/echo/v4 v4.6.3 // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.11 // indirect
