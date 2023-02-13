@@ -1,9 +1,9 @@
 module github.com/goal-web/session
 
-go 1.17
+go 1.19
 
 require (
-	github.com/goal-web/contracts v0.1.36
+	github.com/goal-web/contracts v0.1.62
 	github.com/goal-web/http v0.1.2
 	github.com/goal-web/supports v0.1.12
 )
