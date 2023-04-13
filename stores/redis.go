@@ -35,7 +35,7 @@ func (this *Redis) LoadSession(id string) map[string]string {
 }
 
 func (this *Redis) Save(id string, sessions map[string]string) {
-	values := make([]interface{}, 0)
+	values := make([]any, 0)
 	for key, value := range sessions {
 		values = append(values, key, value)
 	}

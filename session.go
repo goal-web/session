@@ -8,7 +8,6 @@ import (
 	"time"
 )
 
-// Session 后期会拆成 session 和 session store ，支持用 redis 、memcached、database 等其他方式存储 session
 type Session struct {
 	id         string
 	name       string
@@ -37,151 +36,151 @@ func New(config Config, request contracts.HttpRequest, store contracts.SessionSt
 	}
 }
 
-func (this *Session) GetName() string {
-	return this.name
+func (session *Session) GetName() string {
+	return session.name
 }
 
-func (this *Session) SetName(name string) {
-	this.name = name
+func (session *Session) SetName(name string) {
+	session.name = name
 }
 
-func (this *Session) GetId() string {
-	return this.id
+func (session *Session) GetId() string {
+	return session.id
 }
 
-func (this *Session) SetId(id string) {
-	this.id = id
+func (session *Session) SetId(id string) {
+	session.id = id
 }
 
-func (this *Session) Start() bool {
-	cookie, err := this.request.Cookie(this.name)
+func (session *Session) Start() bool {
+	cookie, err := session.request.Cookie(session.name)
 	if err != nil {
 		logs.WithError(err).Debug("Failed to load cookies")
 	} else {
-		this.id = cookie.Value
+		session.id = cookie.Value
 	}
 
-	if this.id == "" {
-		this.generateSessionId()
+	if session.id == "" {
+		session.generateSessionId()
 	}
-	this.loadSession()
-	this.started = true
+	session.loadSession()
+	session.started = true
 	return true
 }
 
-func (this *Session) loadSession() {
-	this.attributes = this.store.LoadSession(this.GetId())
+func (session *Session) loadSession() {
+	session.attributes = session.store.LoadSession(session.GetId())
 }
 
-func (this *Session) Save() {
-	if this.changed {
-		this.store.Save(this.GetId(), this.attributes)
+func (session *Session) Save() {
+	if session.changed {
+		session.store.Save(session.GetId(), session.attributes)
 	}
 }
 
-func (this *Session) All() map[string]string {
-	return this.attributes
+func (session *Session) All() map[string]string {
+	return session.attributes
 }
 
-func (this *Session) Exists(key string) bool {
-	_, exists := this.attributes[key]
+func (session *Session) Exists(key string) bool {
+	_, exists := session.attributes[key]
 	return exists
 }
 
-func (this *Session) Has(key string) bool {
-	value, exists := this.attributes[key]
+func (session *Session) Has(key string) bool {
+	value, exists := session.attributes[key]
 	return exists && value != ""
 }
 
-func (this *Session) Get(key, defaultValue string) string {
-	value, exists := this.attributes[key]
+func (session *Session) Get(key, defaultValue string) string {
+	value, exists := session.attributes[key]
 	if !exists || value == "" {
 		return defaultValue
 	}
 	return value
 }
 
-func (this *Session) Pull(key, defaultValue string) string {
-	this.changed = true
-	value, exists := this.attributes[key]
+func (session *Session) Pull(key, defaultValue string) string {
+	session.changed = true
+	value, exists := session.attributes[key]
 	if !exists || value == "" {
 		return defaultValue
 	}
-	delete(this.attributes, key)
+	delete(session.attributes, key)
 	return value
 }
 
-func (this *Session) Put(key, value string) {
-	this.changed = true
-	this.attributes[key] = value
+func (session *Session) Put(key, value string) {
+	session.changed = true
+	session.attributes[key] = value
 }
 
-func (this *Session) Token() string {
-	return this.Get("_token", "")
+func (session *Session) Token() string {
+	return session.Get("_token", "")
 }
 
-func (this *Session) RegenerateToken() {
-	this.id = utils.RandStr(40)
-	this.request.SetCookie(&http.Cookie{
-		Name:    this.name,
-		Value:   this.id,
-		Expires: time.Now().Add(time.Second * this.lifetime),
+func (session *Session) RegenerateToken() {
+	session.id = utils.RandStr(40)
+	session.request.SetCookie(&http.Cookie{
+		Name:    session.name,
+		Value:   session.id,
+		Expires: time.Now().Add(time.Second * session.lifetime),
 	})
 }
 
-func (this *Session) Remove(key string) string {
-	return this.Pull(key, "")
+func (session *Session) Remove(key string) string {
+	return session.Pull(key, "")
 }
 
-func (this *Session) Forget(keys ...string) {
-	this.changed = true
+func (session *Session) Forget(keys ...string) {
+	session.changed = true
 	for _, key := range keys {
-		delete(this.attributes, key)
+		delete(session.attributes, key)
 	}
 }
 
-func (this *Session) Flush() {
-	this.changed = true
-	this.attributes = make(map[string]string)
+func (session *Session) Flush() {
+	session.changed = true
+	session.attributes = make(map[string]string)
 }
 
-func (this *Session) Invalidate() bool {
-	this.Flush()
-	return this.Migrate(true)
+func (session *Session) Invalidate() bool {
+	session.Flush()
+	return session.Migrate(true)
 }
 
-func (this *Session) Regenerate(destroy bool) bool {
-	if !this.Migrate(destroy) {
-		this.RegenerateToken()
+func (session *Session) Regenerate(destroy bool) bool {
+	if !session.Migrate(destroy) {
+		session.RegenerateToken()
 	}
 	return true
 }
 
-func (this *Session) Migrate(destroy bool) bool {
+func (session *Session) Migrate(destroy bool) bool {
 	if destroy {
-		// todo: $this->handler->destroy($this->getId());
+		// todo: $session->handler->destroy($session->getId());
 	}
-	this.generateSessionId()
+	session.generateSessionId()
 	return true
 }
 
-func (this *Session) IsStarted() bool {
-	return this.started
+func (session *Session) IsStarted() bool {
+	return session.started
 }
 
-func (this *Session) generateSessionId() {
-	this.id = utils.RandStr(40)
-	this.request.SetCookie(&http.Cookie{
-		Name:    this.name,
-		Value:   this.id,
-		Expires: time.Now().Add(time.Second * this.lifetime),
+func (session *Session) generateSessionId() {
+	session.id = utils.RandStr(40)
+	session.request.SetCookie(&http.Cookie{
+		Name:    session.name,
+		Value:   session.id,
+		Expires: time.Now().Add(time.Second * session.lifetime),
 	})
 }
 
-func (this *Session) PreviousUrl() string {
-	return this.Get("_previous.url", "")
+func (session *Session) PreviousUrl() string {
+	return session.Get("_previous.url", "")
 }
 
-func (this *Session) SetPreviousUrl(url string) {
-	this.Put("_previous.url", url)
+func (session *Session) SetPreviousUrl(url string) {
+	session.Put("_previous.url", url)
 }

@@ -10,8 +10,12 @@ type ServiceProvider struct {
 	config Config
 }
 
-func (this *ServiceProvider) Register(application contracts.Application) {
-	this.app = application
+func NewService() contracts.ServiceProvider {
+	return &ServiceProvider{}
+}
+
+func (provider *ServiceProvider) Register(application contracts.Application) {
+	provider.app = application
 
 	application.Bind("session", func(
 		config contracts.Config,
@@ -45,12 +49,12 @@ func (this *ServiceProvider) Register(application contracts.Application) {
 	})
 }
 
-func (this *ServiceProvider) Start() error {
-	this.app.Call(func(dispatcher contracts.EventDispatcher) {
+func (provider *ServiceProvider) Start() error {
+	provider.app.Call(func(dispatcher contracts.EventDispatcher) {
 		dispatcher.Register("RESPONSE_BEFORE", &RequestAfterListener{})
 	})
 	return nil
 }
 
-func (this *ServiceProvider) Stop() {
+func (provider *ServiceProvider) Stop() {
 }
