@@ -21,11 +21,11 @@ func RedisStore(key string, lifetime time.Duration, redis contracts.RedisConnect
 	}
 }
 
-func (this *Redis) LoadSession(id string) map[string]string {
-	sessions, err := this.redis.HGetAll(fmt.Sprintf(this.key, id))
+func (redis *Redis) LoadSession(id string) map[string]string {
+	sessions, err := redis.redis.HGetAll(fmt.Sprintf(redis.key, id))
 	if err != nil {
 		logs.WithError(err).
-			WithField("key", fmt.Sprintf(this.key, id)).
+			WithField("key", fmt.Sprintf(redis.key, id)).
 			Warn("LoadSession err")
 	}
 	if sessions == nil {
@@ -34,15 +34,15 @@ func (this *Redis) LoadSession(id string) map[string]string {
 	return sessions
 }
 
-func (this *Redis) Save(id string, sessions map[string]string) {
+func (redis *Redis) Save(id string, sessions map[string]string) {
 	values := make([]any, 0)
 	for key, value := range sessions {
 		values = append(values, key, value)
 	}
-	_, err := this.redis.HMSet(fmt.Sprintf(this.key, id), values...)
+	_, err := redis.redis.HMSet(fmt.Sprintf(redis.key, id), values...)
 	if err != nil {
 		logs.WithError(err).
-			WithField("key", fmt.Sprintf(this.key, id)).
+			WithField("key", fmt.Sprintf(redis.key, id)).
 			Warn("session save err")
 	}
 }

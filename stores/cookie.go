@@ -27,39 +27,39 @@ func CookieStore(name string, lifetime time.Duration, request contracts.HttpRequ
 	}
 }
 
-func (this *Cookie) LoadSession(id string) map[string]string {
-	attributes := make(map[string]string, 0)
-	for _, cookie := range this.request.Cookies() {
-		if strings.HasPrefix(cookie.Name, this.name) {
+func (c *Cookie) LoadSession(id string) map[string]string {
+	attributes := make(map[string]string)
+	for _, cookie := range c.request.Cookies() {
+		if strings.HasPrefix(cookie.Name, c.name) {
 			value := cookie.Value
-			if this.encrypt {
-				decrypted, err := this.encryptor.Decode(cookie.Value)
+			if c.encrypt {
+				decrypted, err := c.encryptor.Decrypt([]byte(cookie.Value))
 				if err != nil {
 					value = cookie.Value
 					logs.WithError(err).Warn(fmt.Sprintf("cookie %s decryption failed", cookie.Name))
 				} else {
-					value = decrypted
+					value = string(decrypted)
 				}
 			}
-			attributes[strings.ReplaceAll(cookie.Name, this.name, "")] = value
+			attributes[strings.ReplaceAll(cookie.Name, c.name, "")] = value
 		}
 	}
 	return attributes
 }
 
-func (this *Cookie) Save(id string, sessions map[string]string) {
+func (c *Cookie) Save(id string, sessions map[string]string) {
 	for key, value := range sessions {
-		if this.encrypt {
-			value = this.encryptor.Encode(value)
+		if c.encrypt {
+			value = string(c.encryptor.Encrypt([]byte(value)))
 		}
-		this.request.SetCookie(&http.Cookie{
-			Name:    this.CookieKey(key),
+		c.request.SetCookie(&http.Cookie{
+			Name:    c.CookieKey(key),
 			Value:   value,
-			Expires: time.Now().Add(time.Second * this.lifetime),
+			Expires: time.Now().Add(time.Second * c.lifetime),
 		})
 	}
 }
 
-func (this *Cookie) CookieKey(key string) string {
-	return this.name + key
+func (c *Cookie) CookieKey(key string) string {
+	return c.name + key
 }

@@ -53,11 +53,11 @@ func (session *Session) SetId(id string) {
 }
 
 func (session *Session) Start() bool {
-	cookie, err := session.request.Cookie(session.name)
+	cookieValue, err := session.request.Cookie(session.name)
 	if err != nil {
 		logs.WithError(err).Debug("Failed to load cookies")
 	} else {
-		session.id = cookie.Value
+		session.id = cookieValue
 	}
 
 	if session.id == "" {
