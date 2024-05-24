@@ -158,7 +158,7 @@ func (session *Session) Regenerate(destroy bool) bool {
 
 func (session *Session) Migrate(destroy bool) bool {
 	if destroy {
-		// todo: $session->handler->destroy($session->getId());
+		session.Flush()
 	}
 	session.generateSessionId()
 	return true

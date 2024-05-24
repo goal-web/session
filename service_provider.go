@@ -6,8 +6,7 @@ import (
 )
 
 type ServiceProvider struct {
-	app    contracts.Application
-	config Config
+	app contracts.Application
 }
 
 func NewService() contracts.ServiceProvider {
