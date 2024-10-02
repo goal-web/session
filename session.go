@@ -44,7 +44,7 @@ func (session *Session) SetName(name string) {
 	session.name = name
 }
 
-func (session *Session) GetId() string {
+func (session *Session) GetAuthenticatableKey() string {
 	return session.id
 }
 
@@ -69,12 +69,12 @@ func (session *Session) Start() bool {
 }
 
 func (session *Session) loadSession() {
-	session.attributes = session.store.LoadSession(session.GetId())
+	session.attributes = session.store.LoadSession(session.GetAuthenticatableKey())
 }
 
 func (session *Session) Save() {
 	if session.changed {
-		session.store.Save(session.GetId(), session.attributes)
+		session.store.Save(session.GetAuthenticatableKey(), session.attributes)
 	}
 }
 
