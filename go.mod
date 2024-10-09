@@ -1,6 +1,6 @@
 module github.com/goal-web/session
 
-go 1.23.1
+go 1.23.2
 
 require (
 	github.com/apex/log v1.9.0 // indirect
